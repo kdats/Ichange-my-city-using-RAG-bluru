@@ -140,6 +140,78 @@ Retrieval from a vector store is controlled by two parameters:
 This two-step process ensures that even if the nearest chunks are very similar (e.g., all about the same topic), you have a larger pool to select from, which increases diversity and quality in the results.
 
 Example: Fetch the 20 nearest neighbors, then select the best 6 as LLM context.
+### 5.6 **MMR** stands for **Maximal Marginal Relevance**.
+It’s a retrieval method used in information retrieval (and in vector databases like Chroma, Pinecone, etc.) to **select a set of results that are both relevant and diverse**.
+
+---
+
+### 5.7 **What Does MMR Do in fetch\_k?**
+
+When you ask for the top-k relevant chunks for your query, you usually get the `k` chunks with the highest similarity to your query.
+But if those chunks are all very similar to each other (for example, they all mention the same specific event), you might miss out on other important but slightly less similar chunks.
+
+### 5.8 **MMR solves this by:**
+
+* First, fetching a larger pool of candidate chunks (`fetch_k`).
+* Then, iteratively selecting the `k` results that together are not only similar to the query, but also as different from each other as possible.
+
+**In other words:**
+
+* **Relevance:** Each selected chunk should be similar to your query.
+* **Diversity:** The set of chunks should not be redundant; they should cover different aspects of the context.
+
+---
+
+### 5.9 **How does it work?**
+
+**Step-by-step:**
+
+1. Find the top `fetch_k` most similar chunks to your query using cosine similarity or dot product.
+2. From those, use MMR to pick the final `k` results by balancing:
+
+   * How similar each chunk is to the query (relevance).
+   * How different each chunk is from already selected chunks (diversity).
+
+MMR is usually controlled by a parameter (often called `lambda` or `beta`) that weights the tradeoff between relevance and diversity.
+
+---
+
+### 5.10 **Example:**
+
+* You set `fetch_k=20` and `k=6` in your retriever.
+* The system finds the 20 most similar chunks (to the query).
+* It uses MMR to pick 6 of those, making sure you don’t get 6 nearly identical complaints, but instead 6 varied, yet still relevant, pieces of information.
+
+---
+
+### 5.11 **Why use MMR in RAG?**
+
+* **Prevents repetition** in context given to the LLM
+* **Increases coverage** of different subtopics or complaint types
+* **Improves answer quality**, especially for open-ended or broad questions
+
+---
+
+### 5.10 **In LangChain/Chroma:**
+
+When you set `search_type="mmr"` and pass both `k` and `fetch_k`:
+
+```python
+retriever = vectordb.as_retriever(
+    search_type="mmr",
+    search_kwargs={"k": 6, "fetch_k": 20}
+)
+```
+
+You are saying:
+
+* “First, consider the 20 most similar chunks.
+* Then, use MMR to pick the best 6 for both relevance and diversity.”
+
+---
+
+### 5.11 **Summary:**
+MMR is a smart way to select context that is both highly relevant and not redundant, improving the usefulness of RAG systems.
 
 ---
 
