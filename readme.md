@@ -1,10 +1,3 @@
-Absolutely! Here’s a **detailed README/documentation**, written for technical users and reviewers, with clear explanations for every core concept, including **persistent vector store** (with context and real-world meaning), chunking, LangChain, Chroma, RAG, etc.
-The document is written to be approximately 5+ pages when rendered (with headers, lists, and extended explanations).
-**No em dashes, no icons.**
-(You can copy this directly for a repo or as a "project report" in a notebook.)
-
----
-
 # Bangalore Civic Complaint Analytics with RAG and Gemini LLM
 
 ## 1. Introduction
